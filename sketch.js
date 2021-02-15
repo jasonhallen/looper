@@ -143,6 +143,8 @@ function ControlPanel(track) {
   this.play_button.mousePressed(this.play_pause); //function() => {this.play_pause();}); //this.play_pause);
   // play_button.style('font-family:roboto;font-size:24px;background:white;');
   // play_button.style("font-size", "24px");
+  this.mute_button = createButton("Mute");
+  
   this.volume_slider = createSlider(0, 1.5, 0.5, 0.01);
   this.volume_slider.size(100, 18);
   this.volume_slider.position(this.track.x_position + 50, this.track.y_position + 102);
@@ -150,25 +152,52 @@ function ControlPanel(track) {
   this.volume_input.size(45,18);
   this.volume_input.style('font-size:20px;');
   this.volume_input.position(this.track.x_position + 165, this.track.y_position + 106);
+  this.volume_input.attribute("onclick", "this.select()");
   
   this.speed_slider = createSlider(-1, 2, 1, 0.01);
   this.speed_slider.size(100, 18);
   this.speed_slider.position(this.track.x_position + 50, this.track.y_position + 140);
-  this.speed_input = createInput('');
+  this.speed_input = createInput('',"number");
   this.speed_input.size(53,18);
   this.speed_input.style('font-size:20px;');
   this.speed_input.position(this.track.x_position + 165, this.track.y_position + 144);
+  this.speed_input.attribute("onclick", "this.select()");
   this.pitch_slider = createSlider(0.5, 1.5, 1, 0.01);
   this.pitch_slider.size(100, 18);
   this.pitch_slider.position(this.track.x_position + 50, this.track.y_position + 178);
-  this.pitch_input = createInput('');
+  this.pitch_input = createInput('',"number");
   this.pitch_input.size(45,18);
   this.pitch_input.style('font-size:20px;');
   this.pitch_input.position(this.track.x_position + 165, this.track.y_position + 182);
+  this.pitch_input.attribute("onclick", "this.select()");
   this.title = createInput(this.track.sample.name);
   this.title.style('font-size:24px;');
   this.title.size(200,30);
   this.title.position(this.track.x_position + 0, this.track.y_position);
+  this.reset_button = createButton("Reset Phase");
+  this.reset_button.position(200,400);
+  this.reset_phase_status = 0;
+  this.reset_phase = () => {
+    this.reset_phase_status = this.reset_phase_status + 1;
+    csound.setControlChannel("reset_phase", this.reset_phase_status);    
+  }
+  this.reset_button.mousePressed(this.reset_phase);
+
+  this.unison_button = createButton("U");
+  this.unison_button.size(20,30);
+  this.unison_button.position(225,220);
+  this.m2_button = createButton("m2");
+  this.M2_button = createButton("M2");
+  this.m3_button = createButton("m3");
+  this.M3_button = createButton("M3");
+  this.p4_button = createButton("4");
+  this.tritone_button = createButton("T");
+  this.p5_button = createButton("5");
+  this.m6_button = createButton("m6");
+  this.M6_button = createButton("M6");
+  this.m7_button = createButton("m7");
+  this.M7_button = createButton("M7");
+  this.octave_button = createButton("2U");
 
   this.display = function() {
     textSize(50);
@@ -214,10 +243,11 @@ function WavePanel(track) {
   this.x_position = this.track.x_position + 235;
   this.y_position = this.track.y_position + 10;
   this.wave_midpoint = this.y_position + (this.height / 2);
-  this.left_boundary = new LoopBoundary(this.x_position - this.boundary_width, this.y_position, this.boundary_width, this.boundary_height)
-  this.right_boundary = new LoopBoundary(this.x_position + this.width, this.y_position, this.boundary_width, this.boundary_height);
+  this.left_boundary = new LoopBoundary(this.track, this.x_position - this.boundary_width, this.y_position, this.boundary_width, this.boundary_height)
+  this.right_boundary = new LoopBoundary(this.track, this.x_position + this.width, this.y_position, this.boundary_width, this.boundary_height);
   this.loop_start = 0;
-  this.loop_end = this.width;
+  csound.setControlChannel("loop_start", 0);
+  this.loop_end = this.track.sample.length;
   this.playhead = 0;
   // this.playhead_raw = 0;
   this.playhead_width = 8;
@@ -227,16 +257,25 @@ function WavePanel(track) {
   this.clicked_mouse_x = 0;
   this.clicked_left_x = 0;
   this.clicked_right_x = 0;
-
+  csound.setControlChannel("loop_start_continuous", 0);
+  this.click_released = 0;
+  this.cs_loop_start = 0;
+  this.cs_loop_length = 0;
+  this.reset_count = 0;
+  this.cs_phase = 0;
+  this.loop_length_continuous = 0;
+  this.loop_start_continuous = 0;
+  
   this.display = function() {
     // Draw waveform
-    for (var i = 0; i < this.track.sample.peaks.length; i++) {
+    strokeWeight(3);
+    for (var i = 0; i < this.track.sample.peaks.length; i = i + 6) {
       var x = map(i, 0, this.track.sample.peaks.length, this.x_position, this.x_position + this.width);
-      // var y = height / 4;
-      // var w = 1;
-      var h = map(this.track.sample.peaks[i], 1, -1, this.y_position, this.y_position + this.height);
-
-      line(x, this.wave_midpoint, x, h);
+      var max = map(this.track.sample.peaks[i], 1, -1, this.y_position, this.y_position + this.height);
+      var min = map(this.track.sample.peaks[i+1], 1, -1, this.y_position, this.y_position + this.height);
+      strokeCap(SQUARE);
+      line(x, this.wave_midpoint, x, max);
+      line(x, this.wave_midpoint, x, min);
     }
 
     if (hover(this.left_boundary.x_position + this.boundary_width, this.y_position, this.right_boundary.x_position - (this.left_boundary.x_position + this.boundary_width), this.boundary_height) || this.clip_locked) {
@@ -265,6 +304,35 @@ function WavePanel(track) {
     // stroke('rgba(255,255,255,0.75)');
     // line(this.playhead + this.playhead_width / 2, this.playhead_y_position, this.playhead + this.playhead_width / 2, this.playhead_y_position + this.playhead_height);
     // noStroke();
+    fill(255);
+    text("p5js Start: "+this.loop_start, 300, 250);
+    text("p5js Length: " + (this.loop_end - this.loop_start), 300, 280);
+    text("p5js End: " +this.loop_end, 300, 310);
+    text("ClickedX: " +this.clicked_left_x, 300, 340);
+    csound.requestControlChannel("cs_loop_start", () => this.cs_loop_start = csound.getControlChannel("cs_loop_start"));
+    csound.requestControlChannel("cs_loop_length", () => this.cs_loop_length = csound.getControlChannel("cs_loop_length"));
+    csound.requestControlChannel("reset_count", () => this.reset_count = csound.getControlChannel("reset_count"));
+    csound.requestControlChannel("cs_phase", () => this.cs_phase = csound.getControlChannel("cs_phase"));
+    text("Clip locked: " + this.clip_locked, 300, 370);
+    text("Loop Length Cont: " + this.loop_length_continuous, 300, 400);
+    text("Loop Start Cont: " + this.loop_start_continuous, 300, 430);
+    text("Cs Loop Start: " + this.cs_loop_start, 600, 250);
+    text("Cs Loop Length: " + this.cs_loop_length, 600, 280);
+    text("Cs Phase: " + this.cs_phase, 600, 310);
+    text("Cs Reset Count: " + this.reset_count, 600, 340);
+    csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);
+    csound.setControlChannel("loop_start_continuous", this.loop_start_continuous);
+
+
+    // this.loop_start = ~~map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+    // // }
+    // this.loop_end = ~~map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+    // csound.setControlChannel("loop_start", this.loop_start);
+    // if (this.clip_locked) {
+    //   csound.setControlChannel("loop_length", this.track.sample.length - this.clicked_left_x);
+    // } else {
+    //   csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
+    // }
   }
 
   this.clicked = function() {
@@ -281,10 +349,12 @@ function WavePanel(track) {
   
   this.dragged = function() {
     if (this.clip_locked) {
-      // var mouse_constrain = constrain(this.clicked_mouse_x - mouseX, this.clicked_left_x - this.x_position, this.x_position + this.width - this.clicked_right_x)
+      this.loop_length_continuous = 1;
+      // csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);    
+      
       this.left_boundary.x_position = this.clicked_left_x - (this.clicked_mouse_x - mouseX);
       this.right_boundary.x_position = this.clicked_right_x - (this.clicked_mouse_x - mouseX);
-
+      
       if (this.left_boundary.x_position < this.x_position - this.boundary_width) {
         this.left_boundary.x_position = this.x_position - this.boundary_width;
         this.right_boundary.x_position = this.left_boundary.x_position + (this.clicked_right_x - this.clicked_left_x)
@@ -292,44 +362,83 @@ function WavePanel(track) {
         this.right_boundary.x_position = this.x_position + this.width;
         this.left_boundary.x_position = this.right_boundary.x_position - (this.clicked_right_x - this.clicked_left_x);
       }
+      if (this.track.controlPanel.speed_slider.value() > 0 && this.right_boundary.x_position < this.playhead) {
+        //   // this.loop_start = map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+        //   // csound.setControlChannel("loop_start", this.loop_start);
+        //   // this.loop_end = map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+        //   // csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
+        this.track.controlPanel.reset_phase();
+      }
+      
     }
-
+    
     if (this.left_boundary.locked) {
       this.left_boundary.x_position = mouseX - this.boundary_width/2;
       if (this.left_boundary.x_position < this.x_position) {
         this.left_boundary.x_position = this.x_position - this.boundary_width;
-      } else if (this.left_boundary.x_position + this.boundary_width > this.right_boundary.x_position - 5) {
-        this.left_boundary.x_position = this.right_boundary.x_position - this.boundary_width - 5;
-      // } else {
-      //   this.left_boundary.x_position = mouseX - this.boundary_width/2;
+      } else if (this.left_boundary.x_position + this.boundary_width > this.right_boundary.x_position - 2) {
+        this.left_boundary.x_position = this.right_boundary.x_position - this.boundary_width - 2;
       }
     } else if (this.right_boundary.locked) {
+      this.loop_length_continuous = 1;
+      csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);    
       this.right_boundary.x_position = mouseX - this.boundary_width/2;
-      if (this.right_boundary.x_position < this.left_boundary.x_position + this.boundary_width + 5) {
-        this.right_boundary.x_position = this.left_boundary.x_position + this.boundary_width + 5;
+      if (this.right_boundary.x_position < this.left_boundary.x_position + this.boundary_width + 2) {
+        this.right_boundary.x_position = this.left_boundary.x_position + this.boundary_width + 2;
       } else if (this.right_boundary.x_position > this.x_position + this.width) {
         this.right_boundary.x_position = this.x_position + this.width;
-      // } else {
-      //   this.right_boundary.x_position = mouseX - this.boundary_width/2;
       }
+    }
+    
+    // if (this.clip_locked) {
+    //   this.loop_start = map((this.clicked_left_x + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+    // } else {
+
+      this.loop_start = ~~map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+    // }
+    this.loop_end = ~~map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+    csound.setControlChannel("loop_start", this.loop_start);
+    if (this.clip_locked) {
+      csound.setControlChannel("loop_length", this.track.sample.length - this.clicked_left_x);
+    } else {
+      csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
     }
   }
   
   this.released = function() {
+    if (this.clip_locked) {
+      this.loop_start = ~~map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+      this.loop_end = ~~map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+      csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
+      // this.loop_length_continuous = 0;
+      // csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);
+      // csound.setControlChannel("loop_start_continuous", 0);
+      this.click_released += 1;
+      csound.setControlChannel("click_released", this.click_released)
+    }
+    // if (this.right_boundary.locked) {
+    //   this.loop_length_continuous = 0;
+    // }
+    this.loop_length_continuous = 0;
     this.clip_locked = false;
     this.left_boundary.released();
     this.right_boundary.released();
-    this.loop_start = map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    this.loop_end = map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    csound.setControlChannel("loop_start", this.loop_start);
-    csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
+    if (this.track.controlPanel.speed_slider.value() > 0 && this.left_boundary.x_position > this.playhead) {
+      this.track.controlPanel.reset_phase();
+    }
+    // csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
+      // this.loop_start = map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+    // this.loop_end = map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+    // csound.setControlChannel("loop_start", this.loop_start);
+    // csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
     // if (this.track.isPlaying === false) {
     //   this.playhead = this.left_boundary.x_position + (this.boundary_width - this.playhead_width / 2);
     // }
   }
 }
 
-function LoopBoundary(x,y,width,height) {
+function LoopBoundary(track,x,y,width,height) {
+  this.track = track;
   this.width = width;
   this.height = height; 
   this.x_position = x;
@@ -337,7 +446,7 @@ function LoopBoundary(x,y,width,height) {
   this.locked = false;
 
   this.display = function() {
-    if (this.hover() || this.locked) {
+    if (this.hover() || this.locked || this.track.wavePanel.clip_locked) {
       stroke('rgba(227,218,98,1)');
       strokeWeight(2);
       fill('rgba(227, 218, 98, 0.5)');

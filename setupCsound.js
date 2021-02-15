@@ -15,7 +15,7 @@ async function loadResources(csound, filesArray) {
     const buffer = await f.arrayBuffer();
     // console.log(path, buffer);
     await csound.writeToFS(path, buffer);
-    await generate_peaks(path,buffer);
+    await generate_peaks2(path,buffer);
   }
   return true;
 }
@@ -52,7 +52,43 @@ function generate_peaks(path, buffer) {
     }
     sample_list.push(new Sample(path,peak_array,buf.length));
   })
+}
 
+function generate_peaks2(path, buffer) {
+  console.log(buffer.byteLength);
+  console.log("TEST");
+  csound.audioContext.decodeAudioData(buffer, function (buf) {
+    // calculate peaks in buffer, save peak arrays
+    console.log(buf.length);
+    var peak_array = new Float32Array(1000);
+    var peaks = 500;
+    var sampleSize = buf.length / peaks;
+    var sampleStep = ~~(sampleSize / 10) || 1;
+    var channels = buf.numberOfChannels;
+    for (var c = 0; c < channels; c++) {
+      var chan = buf.getChannelData(c);
+      for (var i = 0; i < peaks; i++) {
+        var start = ~~(i * sampleSize);
+        var end = ~~(start + sampleSize);
+        var min = 1.0;
+        var max = -1.0;
+        for (var j = start; j < end; j += sampleStep) {
+          var value = chan[j];
+          if (value < min) {
+            min = value;
+          }
+          if (value > max) {
+            max = value;
+          }
+        }
+        if (c === 0 || Math.abs(max) > peak_array[i]) {
+          peak_array[i*2] = max;
+          peak_array[i*2+1] = min;
+        }
+      }
+    }
+    sample_list.push(new Sample(path,peak_array,buf.length));
+  })
 }
 
 async function startCsound() {
