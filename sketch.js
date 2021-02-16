@@ -45,21 +45,6 @@ function add_track() {
   track_list.push(new Track(track_list.length));
 }
 
-// function play_pause(track) {
-//   if (track.isPlaying === false) {
-//     csound.audioContext.resume();
-//     track.isPlaying = true;
-//     csound.readScore("i 1 0 -1");
-//     // play_button.html('PAUSE');
-//     track.play_button.attribute('src','pause.png');
-//   } else {
-//     track.isPlaying = false;
-//     csound.readScore("i -1 0 1");
-//     // play_button.html('PLAY');
-//     track.play_button.attribute('src', 'play.png');
-//   }
-// }
-
 function mousePressed() {
   track_list.forEach(track => track.wavePanel.clicked());
 }
@@ -106,20 +91,18 @@ function Track(track_number) {
   this.isPlaying = false;
   this.controlPanel = new ControlPanel(this);
   this.wavePanel = new WavePanel(this);
+  this.effectsPanel = new EffectsPanel(this);
 
   this.display = function() {
     this.controlPanel.display();
     this.wavePanel.display();
-    if (csound) {
-      csound.setControlChannel("volume", this.controlPanel.volume_slider.value());
-      csound.setControlChannel("speed", this.controlPanel.speed_slider.value());
-      csound.setControlChannel("pitch", this.controlPanel.pitch_slider.value());
-    }    
+    this.effectsPanel.display();
   }
 }
 
 function ControlPanel(track) {
   this.track = track;
+  this.height = 250;
   this.play_button = createImg('play.png', "Play");
   this.play_button.size(70, 70);
   this.play_button.position(this.track.x_position + 100, this.track.y_position + 30);
@@ -136,6 +119,8 @@ function ControlPanel(track) {
       // console.log(this.isPlaying);
       csound.readScore("i -1 0 1");
       this.play_button.attribute('src', 'play.png');
+      this.track.effectsPanel.reset_count = 0;
+      this.track.effectsPanel.reset_phase_status = 0;
       // this.track.wavePanel.playhead = this.track.wavePanel.left_boundary.x_position + (this.track.wavePanel.boundary_width - this.track.wavePanel.playhead_width / 2);
     }
   }
@@ -150,16 +135,16 @@ function ControlPanel(track) {
   this.volume_slider.position(this.track.x_position + 50, this.track.y_position + 102);
   this.volume_input = createInput('',"number");
   this.volume_input.size(45,18);
-  this.volume_input.style('font-size:20px;');
+  // this.volume_input.style('font-size:20px;');
   this.volume_input.position(this.track.x_position + 165, this.track.y_position + 106);
   this.volume_input.attribute("onclick", "this.select()");
   
-  this.speed_slider = createSlider(-1, 2, 1, 0.01);
+  this.speed_slider = createSlider(-1, 4, 1, 0.001);
   this.speed_slider.size(100, 18);
   this.speed_slider.position(this.track.x_position + 50, this.track.y_position + 140);
   this.speed_input = createInput('',"number");
-  this.speed_input.size(53,18);
-  this.speed_input.style('font-size:20px;');
+  this.speed_input.size(65,18);
+  // this.speed_input.style('font-size:20px;');
   this.speed_input.position(this.track.x_position + 165, this.track.y_position + 144);
   this.speed_input.attribute("onclick", "this.select()");
   this.pitch_slider = createSlider(0.5, 1.5, 1, 0.01);
@@ -167,37 +152,36 @@ function ControlPanel(track) {
   this.pitch_slider.position(this.track.x_position + 50, this.track.y_position + 178);
   this.pitch_input = createInput('',"number");
   this.pitch_input.size(45,18);
-  this.pitch_input.style('font-size:20px;');
+  // this.pitch_input.style('font-size:20px;');
   this.pitch_input.position(this.track.x_position + 165, this.track.y_position + 182);
   this.pitch_input.attribute("onclick", "this.select()");
   this.title = createInput(this.track.sample.name);
   this.title.style('font-size:24px;');
   this.title.size(200,30);
   this.title.position(this.track.x_position + 0, this.track.y_position);
-  this.reset_button = createButton("Reset Phase");
-  this.reset_button.position(200,400);
-  this.reset_phase_status = 0;
-  this.reset_phase = () => {
-    this.reset_phase_status = this.reset_phase_status + 1;
-    csound.setControlChannel("reset_phase", this.reset_phase_status);    
-  }
-  this.reset_button.mousePressed(this.reset_phase);
+  // this.reset_count = 0;
+  // this.reset_button = createButton("Reset Phase");
+  // this.reset_button.position(200,400);
+  // this.reset_phase_status = 0;
+  // this.reset_phase = () => {
+  //   this.reset_phase_status = this.reset_phase_status + 1;
+  //   csound.setControlChannel("reset_phase", this.reset_phase_status);    
+  // }
+  // this.reset_button.mousePressed(this.reset_phase);
 
-  this.unison_button = createButton("U");
-  this.unison_button.size(20,30);
-  this.unison_button.position(225,220);
-  this.m2_button = createButton("m2");
-  this.M2_button = createButton("M2");
-  this.m3_button = createButton("m3");
-  this.M3_button = createButton("M3");
-  this.p4_button = createButton("4");
-  this.tritone_button = createButton("T");
-  this.p5_button = createButton("5");
-  this.m6_button = createButton("m6");
-  this.M6_button = createButton("M6");
-  this.m7_button = createButton("m7");
-  this.M7_button = createButton("M7");
-  this.octave_button = createButton("2U");
+  // this.time_lock = createButton("Time Lock");
+  // this.time_lock_status = 0;
+  // this.time_lock_clicked = () => {
+  //   this.time_lock_status = (this.time_lock_status + 1)%2;
+  // }
+  // this.time_lock.mousePressed(this.time_lock_clicked);
+  // this.time_lock.position(600, 250);
+  // this.time_lock_input = createInput('2', "number");
+  // this.time_lock_input.position(600, 290);
+  // this.time_lock_input.attribute("onclick", "this.select()");
+  // this.time_lock_duration = 2;
+  // this.time_lock_increment = createInput('1', "number");
+  // this.time_lock_increment.position(600, 330);
 
   this.display = function() {
     textSize(50);
@@ -213,6 +197,28 @@ function ControlPanel(track) {
     // text(this.track.sample.name, this.track.x_position + 0, this.track.y_position);
     stroke(255);
     strokeWeight(2);
+
+    // csound.requestControlChannel("reset_count", () => {
+    //   if (csound.getControlChannel("reset_count") !== this.reset_count && this.time_lock_status === 1) {
+    //     this.reset_increment();
+    //   }
+    //   this.reset_count = csound.getControlChannel("reset_count");
+    // });
+
+    // if (csound) {
+      csound.setControlChannel("volume", this.volume_slider.value());
+      if (this.track.effectsPanel.time_lock_status) {
+        // this.time_lock_speed = (this.track.wavePanel.loop_end - this.track.wavePanel.loop_start) / (this.time_lock_duration.value()) * 44100)
+        this.speed_slider.value((this.track.wavePanel.loop_end - this.track.wavePanel.loop_start) / (this.track.effectsPanel.time_lock_duration * 44100));
+        // if (this.track.wavePanel.reset_count.changed()) {
+        //   this.track.wavePanel.loop_start -= this.time_lock_increment.value();
+        // }
+        // csound.setControlChannel("speed", (this.track.wavePanel.loop_end - this.track.wavePanel.loop_start) / (this.time_lock_duration.value()) * 44100);
+      // } else {
+      }
+      csound.setControlChannel("speed", this.speed_slider.value());
+      csound.setControlChannel("pitch", this.pitch_slider.value() * this.track.effectsPanel.keyboard.current_ratio);
+    // }  
   }
 
   this.clicked = function() {
@@ -231,7 +237,14 @@ function ControlPanel(track) {
     this.volume_slider.value(map(this.volume_input.value(), 0, 100, 0, 1.5));
     this.speed_slider.value(this.speed_input.value());
     this.pitch_slider.value(this.pitch_input.value());
+    this.track.effectsPanel.time_lock_duration = this.track.effectsPanel.time_lock_input.value();
+    this.track.effectsPanel.reset_shift_left_increment = this.track.effectsPanel.reset_shift_left_input.value();
+    this.track.effectsPanel.reset_shift_right_increment = this.track.effectsPanel.reset_shift_right_input.value();
   }
+
+  // this.reset_increment = function () {
+  //   this.track.wavePanel.left_boundary.x_position -= this.time_lock_increment.value();
+  // }
 }
 
 function WavePanel(track) {
@@ -240,16 +253,14 @@ function WavePanel(track) {
   this.height = 150;
   this.boundary_width = 14;
   this.boundary_height = this.height;
-  this.x_position = this.track.x_position + 235;
+  this.x_position = this.track.x_position + 250;
   this.y_position = this.track.y_position + 10;
   this.wave_midpoint = this.y_position + (this.height / 2);
   this.left_boundary = new LoopBoundary(this.track, this.x_position - this.boundary_width, this.y_position, this.boundary_width, this.boundary_height)
   this.right_boundary = new LoopBoundary(this.track, this.x_position + this.width, this.y_position, this.boundary_width, this.boundary_height);
   this.loop_start = 0;
-  csound.setControlChannel("loop_start", 0);
   this.loop_end = this.track.sample.length;
   this.playhead = 0;
-  // this.playhead_raw = 0;
   this.playhead_width = 8;
   this.playhead_height = this.boundary_height * 0.9;
   this.playhead_y_position = this.y_position + (this.height - this.playhead_height) / 2;
@@ -257,15 +268,12 @@ function WavePanel(track) {
   this.clicked_mouse_x = 0;
   this.clicked_left_x = 0;
   this.clicked_right_x = 0;
-  csound.setControlChannel("loop_start_continuous", 0);
   this.click_released = 0;
-  this.cs_loop_start = 0;
-  this.cs_loop_length = 0;
-  this.reset_count = 0;
-  this.cs_phase = 0;
-  this.loop_length_continuous = 0;
-  this.loop_start_continuous = 0;
-  
+  this.loop_length = createSpan('');
+  this.loop_length_hover = false;
+  this.loop_length.mouseOver(() => {this.loop_length_hover = true});
+  this.loop_length.mouseOut(() => {this.loop_length_hover = false});
+
   this.display = function() {
     // Draw waveform
     strokeWeight(3);
@@ -278,10 +286,13 @@ function WavePanel(track) {
       line(x, this.wave_midpoint, x, min);
     }
 
-    if (hover(this.left_boundary.x_position + this.boundary_width, this.y_position, this.right_boundary.x_position - (this.left_boundary.x_position + this.boundary_width), this.boundary_height) || this.clip_locked) {
+    if (hover(this.left_boundary.x_position + this.boundary_width, this.y_position, this.right_boundary.x_position - (this.left_boundary.x_position + this.boundary_width), this.boundary_height + 10) || this.clip_locked || this.loop_length_hover === true) {
       noStroke();
       fill('rgba(255,255,255,0.15)');
       rect(this.left_boundary.x_position + this.boundary_width, this.y_position, this.right_boundary.x_position - (this.left_boundary.x_position + this.boundary_width), this.boundary_height);
+      this.loop_length.style("background:rgba(255,255,255,0.15);")
+    } else {
+      this.loop_length.style("background:rgb(227, 75, 116);")
     }
 
     // Draw left and right boundaries
@@ -304,35 +315,25 @@ function WavePanel(track) {
     // stroke('rgba(255,255,255,0.75)');
     // line(this.playhead + this.playhead_width / 2, this.playhead_y_position, this.playhead + this.playhead_width / 2, this.playhead_y_position + this.playhead_height);
     // noStroke();
+    
     fill(255);
-    text("p5js Start: "+this.loop_start, 300, 250);
-    text("p5js Length: " + (this.loop_end - this.loop_start), 300, 280);
-    text("p5js End: " +this.loop_end, 300, 310);
-    text("ClickedX: " +this.clicked_left_x, 300, 340);
-    csound.requestControlChannel("cs_loop_start", () => this.cs_loop_start = csound.getControlChannel("cs_loop_start"));
-    csound.requestControlChannel("cs_loop_length", () => this.cs_loop_length = csound.getControlChannel("cs_loop_length"));
-    csound.requestControlChannel("reset_count", () => this.reset_count = csound.getControlChannel("reset_count"));
-    csound.requestControlChannel("cs_phase", () => this.cs_phase = csound.getControlChannel("cs_phase"));
-    text("Clip locked: " + this.clip_locked, 300, 370);
-    text("Loop Length Cont: " + this.loop_length_continuous, 300, 400);
-    text("Loop Start Cont: " + this.loop_start_continuous, 300, 430);
-    text("Cs Loop Start: " + this.cs_loop_start, 600, 250);
-    text("Cs Loop Length: " + this.cs_loop_length, 600, 280);
-    text("Cs Phase: " + this.cs_phase, 600, 310);
-    text("Cs Reset Count: " + this.reset_count, 600, 340);
-    csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);
-    csound.setControlChannel("loop_start_continuous", this.loop_start_continuous);
+    text("Start: "+this.loop_start, this.track.x_position, this.track.controlPanel.height + 10);
+    text("Length: " + (this.loop_end - this.loop_start), this.track.x_position, this.track.controlPanel.height + 40);
+    text("End: " + this.loop_end, this.track.x_position, this.track.controlPanel.height + 70);
+    text("Reset Count: " + this.track.effectsPanel.reset_count, this.track.x_position, this.track.controlPanel.height + 100);
+    text("Reset Phase Status: " + this.track.effectsPanel.reset_phase_status, this.track.x_position, this.track.controlPanel.height + 130);
+    
+    csound.setControlChannel("loop_start", this.loop_start);
+    csound.setControlChannel("loop_end", this.loop_end);
+    // textAlign(CENTER);
+    // text(((this.loop_end - this.loop_start) / 44100 / this.track.controlPanel.speed_slider.value()).toFixed(2) + "s", (this.left_boundary.x_position + this.right_boundary.x_position + this.boundary_width)/2, this.y_position + this.height + 5);
+    // textAlign(LEFT);
 
+    this.loop_length.html(((this.loop_end - this.loop_start) / 44100 / this.track.controlPanel.speed_slider.value()).toFixed(2) + "s");
+    this.loop_length.position((this.left_boundary.x_position + this.right_boundary.x_position + this.boundary_width) / 2 - 50, this.y_position + this.height + 5);
 
-    // this.loop_start = ~~map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    // // }
-    // this.loop_end = ~~map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    // csound.setControlChannel("loop_start", this.loop_start);
-    // if (this.clip_locked) {
-    //   csound.setControlChannel("loop_length", this.track.sample.length - this.clicked_left_x);
-    // } else {
-    //   csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
-    // }
+    this.loop_start = ~~map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
+    this.loop_end = ~~map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
   }
 
   this.clicked = function() {
@@ -340,7 +341,7 @@ function WavePanel(track) {
     this.clicked_left_x = this.left_boundary.x_position;
     this.clicked_right_x = this.right_boundary.x_position;
 
-    if (hover(this.left_boundary.x_position + this.boundary_width, this.y_position, this.right_boundary.x_position - (this.left_boundary.x_position + this.boundary_width), this.boundary_height)) {
+    if (hover(this.left_boundary.x_position + this.boundary_width, this.y_position, this.right_boundary.x_position - (this.left_boundary.x_position + this.boundary_width), this.boundary_height) || this.loop_length_hover) {
       this.clip_locked = true;
     }
     this.left_boundary.clicked();
@@ -348,10 +349,7 @@ function WavePanel(track) {
   }
   
   this.dragged = function() {
-    if (this.clip_locked) {
-      this.loop_length_continuous = 1;
-      // csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);    
-      
+    if (this.clip_locked) {     
       this.left_boundary.x_position = this.clicked_left_x - (this.clicked_mouse_x - mouseX);
       this.right_boundary.x_position = this.clicked_right_x - (this.clicked_mouse_x - mouseX);
       
@@ -361,27 +359,19 @@ function WavePanel(track) {
       } else if (this.right_boundary.x_position > this.x_position + this.width) {
         this.right_boundary.x_position = this.x_position + this.width;
         this.left_boundary.x_position = this.right_boundary.x_position - (this.clicked_right_x - this.clicked_left_x);
-      }
-      if (this.track.controlPanel.speed_slider.value() > 0 && this.right_boundary.x_position < this.playhead) {
-        //   // this.loop_start = map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-        //   // csound.setControlChannel("loop_start", this.loop_start);
-        //   // this.loop_end = map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-        //   // csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
-        this.track.controlPanel.reset_phase();
-      }
-      
+      }      
     }
     
     if (this.left_boundary.locked) {
       this.left_boundary.x_position = mouseX - this.boundary_width/2;
-      if (this.left_boundary.x_position < this.x_position) {
+      if (this.left_boundary.x_position < this.x_position - this.boundary_width) {
         this.left_boundary.x_position = this.x_position - this.boundary_width;
       } else if (this.left_boundary.x_position + this.boundary_width > this.right_boundary.x_position - 2) {
         this.left_boundary.x_position = this.right_boundary.x_position - this.boundary_width - 2;
       }
     } else if (this.right_boundary.locked) {
-      this.loop_length_continuous = 1;
-      csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);    
+      // this.loop_length_continuous = 1;
+      // csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);    
       this.right_boundary.x_position = mouseX - this.boundary_width/2;
       if (this.right_boundary.x_position < this.left_boundary.x_position + this.boundary_width + 2) {
         this.right_boundary.x_position = this.left_boundary.x_position + this.boundary_width + 2;
@@ -389,51 +379,21 @@ function WavePanel(track) {
         this.right_boundary.x_position = this.x_position + this.width;
       }
     }
-    
-    // if (this.clip_locked) {
-    //   this.loop_start = map((this.clicked_left_x + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    // } else {
-
-      this.loop_start = ~~map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    // }
-    this.loop_end = ~~map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    csound.setControlChannel("loop_start", this.loop_start);
-    if (this.clip_locked) {
-      csound.setControlChannel("loop_length", this.track.sample.length - this.clicked_left_x);
-    } else {
-      csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
-    }
   }
   
   this.released = function() {
     if (this.clip_locked) {
-      this.loop_start = ~~map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-      this.loop_end = ~~map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-      csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
-      // this.loop_length_continuous = 0;
-      // csound.setControlChannel("loop_length_continuous", this.loop_length_continuous);
-      // csound.setControlChannel("loop_start_continuous", 0);
-      this.click_released += 1;
-      csound.setControlChannel("click_released", this.click_released)
+      if (this.track.isPlaying) {
+        if (this.track.controlPanel.speed_slider.value() > 0 && this.left_boundary.x_position + this.boundary_width > this.playhead) {
+          this.track.effectsPanel.reset_phase();
+        } else if (this.track.controlPanel.speed_slider.value() < 0 && this.right_boundary.x_position < this.playhead) {
+          this.track.effectsPanel.reset_phase();
+        }
+      }
     }
-    // if (this.right_boundary.locked) {
-    //   this.loop_length_continuous = 0;
-    // }
-    this.loop_length_continuous = 0;
     this.clip_locked = false;
     this.left_boundary.released();
     this.right_boundary.released();
-    if (this.track.controlPanel.speed_slider.value() > 0 && this.left_boundary.x_position > this.playhead) {
-      this.track.controlPanel.reset_phase();
-    }
-    // csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
-      // this.loop_start = map((this.left_boundary.x_position + this.boundary_width), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    // this.loop_end = map((this.right_boundary.x_position), this.x_position, this.x_position + this.width, 0, this.track.sample.length);
-    // csound.setControlChannel("loop_start", this.loop_start);
-    // csound.setControlChannel("loop_length", this.loop_end - this.loop_start);
-    // if (this.track.isPlaying === false) {
-    //   this.playhead = this.left_boundary.x_position + (this.boundary_width - this.playhead_width / 2);
-    // }
   }
 }
 
@@ -471,7 +431,7 @@ function LoopBoundary(track,x,y,width,height) {
   }
 
   this.clicked = function() {
-    
+
     if (this.hover()) {
       this.locked = true;
     } else {
@@ -485,9 +445,132 @@ function LoopBoundary(track,x,y,width,height) {
   }
 }
 
-function CustomSlider(min, max, start, step, track) {
+function EffectsPanel(track) {
   this.track = track;
-  this.slider = createSlider(min, max, start, step);
-  this.slider.size(100, 18);
-  this.slider.position(this.track.x_position + 50, this.track.y_position + 102);
+  this.width = this.track.wavePanel.width;
+  this.height = 200;
+  this.x_position = this.track.wavePanel.x_position;
+  this.y_position = this.track.wavePanel.y_position + this.track.wavePanel.height + 40;
+  this.keyboard = new Keyboard(this);
+  
+  this.reset_count = 0;
+  this.reset_button = createButton("Reset Phase");
+  this.reset_button.position(this.x_position + 600, this.y_position);
+  this.reset_phase_status = 0;
+  this.reset_phase = () => {
+    this.reset_phase_status = this.reset_phase_status + 1;
+    csound.setControlChannel("reset_phase", this.reset_phase_status);
+  }
+  this.reset_button.mousePressed(this.reset_phase);
+  
+  this.time_lock = createButton("Time Lock");
+  this.time_lock_status = false;
+  this.time_lock_clicked = () => {
+    if (this.time_lock_status) {
+      this.time_lock_status = false;
+      this.time_lock.removeClass("selected");
+    } else {
+      this.time_lock_status = true;
+      this.time_lock.class("selected");
+    }
+  }
+  this.time_lock.mousePressed(this.time_lock_clicked);
+  this.time_lock.position(this.x_position + this.keyboard.width, this.y_position);
+  this.time_lock_input = createInput('2', "number");
+  this.time_lock_input.position(this.x_position + this.keyboard.width, this.y_position + 40);
+  this.time_lock_input.attribute("onclick", "this.select()");
+  this.time_lock_duration = 2;
+
+  this.reset_shift = createButton("Reset Shift");
+  this.reset_shift.position(this.x_position + this.keyboard.width + 150, this.y_position);
+  this.reset_shift_left_input = createInput('1', "number");
+  this.reset_shift_left_input.position(this.x_position + this.keyboard.width + 150, this.y_position + 40);
+  this.reset_shift_left_input.attribute("onclick", "this.select()");
+  this.reset_shift_left_increment = 1;
+  this.reset_shift_right_input = createInput('1', "number");
+  this.reset_shift_right_input.position(this.x_position + this.keyboard.width + 180, this.y_position + 40);
+  this.reset_shift_right_input.attribute("onclick", "this.select()");
+  this.reset_shift_right_increment = 1;
+  this.reset_shift_status = false;
+  this.reset_shift_clicked = () => {
+    if (this.reset_shift_status) {
+      this.reset_shift_status = false;
+      this.reset_shift.removeClass("selected");
+    } else {
+      this.reset_shift_status = true;
+      this.reset_shift.class("selected");
+    }
+  }
+  this.reset_shift.mousePressed(this.reset_shift_clicked);
+
+
+  this.display = function() {
+    csound.requestControlChannel("reset_count", () => {
+      if (this.track.isPlaying) {
+        if (csound.getControlChannel("reset_count") !== this.reset_count && this.reset_shift_status) {
+          this.reset_increment();
+        }
+        this.reset_count = csound.getControlChannel("reset_count");
+      }
+    });
+  }
+
+  this.reset_increment = function () {
+    this.track.wavePanel.left_boundary.x_position += parseFloat(this.reset_shift_left_increment);
+    this.track.wavePanel.right_boundary.x_position += parseFloat(this.reset_shift_right_increment);
+  }
+}
+
+function Keyboard(effectsPanel) {
+  this.effectsPanel = effectsPanel;
+  this.width = 300;
+  this.x_offset = 18;
+  this.y_offset = 36;
+  this.keys = [];
+  this.keys.push(new Key(this, 0, 1, 1));
+  this.keys.push(new Key(this, 1, 0, 1.059463));
+  this.keys.push(new Key(this, 2, 1, 1.122462));
+  this.keys.push(new Key(this, 3, 0, 1.189207));
+  this.keys.push(new Key(this, 4, 1, 1.259921));
+  this.keys.push(new Key(this, 6, 1, 1.33484));
+  this.keys.push(new Key(this, 7, 0, 1.414214 ));
+  this.keys.push(new Key(this, 8, 1, 1.498307));
+  this.keys.push(new Key(this, 9, 0, 1.587401));
+  this.keys.push(new Key(this, 10, 1, 1.681793));
+  this.keys.push(new Key(this, 11, 0, 1.781797));
+  this.keys.push(new Key(this, 12, 1, 1.887749));
+  this.keys.push(new Key(this, 14, 1, 2));
+  this.current_ratio = 1;
+
+  this.display = function() {
+
+  }
+
+  this.update_keys = function(clicked_key) {
+    this.keys.forEach(key => {
+      if (key.button_clicked === true) {
+        key.button.class("selected");
+        this.current_ratio = key.ratio;
+        key.button_clicked = false;
+      } else {
+        key.button.removeClass("selected");
+      }
+    });
+  }
+}
+
+function Key(keyboard, x, y, ratio) {
+  this.keyboard = keyboard;
+  this.ratio = ratio;
+  this.button = createButton("");
+  this.button.size(30, 30);
+  this.button.position(this.keyboard.effectsPanel.x_position + this.keyboard.x_offset * x, this.keyboard.effectsPanel.y_position + this.keyboard.y_offset * y);
+  this.button_clicked = false;
+
+  this.button.clicked = () => {
+    this.button_clicked = true;
+    this.keyboard.update_keys(this.button);
+  }
+  
+  this.button.mousePressed(this.button.clicked);
 }
