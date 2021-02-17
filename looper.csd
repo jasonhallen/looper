@@ -8,8 +8,8 @@ ksmps = 32
 nchnls = 2
 0dbfs = 1
 
-gisample1 ftgen 1, 0, 0, 1, "bohannon.wav", 0, 0, 1
-;gisample2 ftgen 1, 0, 0, 1, "daughter_mono.wav", 0, 0, 1
+gibohannon ftgen 1, 0, 0, 1, "bohannon.wav", 0, 0, 1
+gimygirl ftgen 2, 0, 0, 1, "my_girl_2.wav", 0, 0, 1
 
 instr 1
 	ktimescale init 1
@@ -52,6 +52,7 @@ instr 1
 	kloop_start = chnget:k("loop_start")
 	kloop_end = chnget:k("loop_end")
 	kloop_length = chnget:k("loop_length")
+	kfunction = chnget:k("cs_function")
 	kphs init chnget:i("loop_start")
 	
 	kndx = 0
@@ -85,7 +86,7 @@ instr 1
 		kndx += 1 
 	od
 	; aphs = (aphs* kloop_length/sr + kloop_start/sr)
-	asigl  mincer aphs, kamp, kpitch, 1, ilock, 2048, 10
+	asigl  mincer aphs, kamp, kpitch, kfunction, ilock, 2048, 10
 	chnset k(aphs)*sr, "playhead"
 
 

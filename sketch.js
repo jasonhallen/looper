@@ -43,6 +43,7 @@ function draw() {
 
 function add_track() {
   track_list.push(new Track(track_list.length));
+  // track_list.push(new Track(track_list.length));
 }
 
 function mousePressed() {
@@ -83,7 +84,7 @@ function hover(x_position, y_position, width, height) {
 
 function Track(track_number) {
   this.width = 1200;
-  this.height = 200;
+  this.height = 400;
   this.x_position = 20;
   this.y_position = 30 + this.height * track_number;
   this.track_number = track_number;
@@ -103,21 +104,29 @@ function Track(track_number) {
 function ControlPanel(track) {
   this.track = track;
   this.height = 250;
+  this.sample_select = createSelect();
+  sample_list.forEach(sample => this.sample_select.option(sample.name));
+  this.sample_select.position(this.track.x_position, this.track.y_position - 20);
+  this.sample_change = () => {
+    this.track.sample = sample_list.find(element => element.name === this.sample_select.value());
+  }
+  this.sample_select.changed(this.sample_change);
   this.play_button = createImg('play.png', "Play");
   this.play_button.size(70, 70);
   this.play_button.position(this.track.x_position + 100, this.track.y_position + 30);
   
+
   this.play_pause = () => {
     if (this.track.isPlaying === false) {
       csound.audioContext.resume();
       this.track.isPlaying = true;
       // console.log(this.isPlaying);
-      csound.readScore("i 1 0 -1");
+      csound.readScore(`i 1.${this.track.track_number} 0 -1 ${this.track.track_number}`); //${this.track.sample.cs_function}
       this.play_button.attribute('src', 'pause.png');
     } else {
       this.track.isPlaying = false;
       // console.log(this.isPlaying);
-      csound.readScore("i -1 0 1");
+      csound.readScore(`i -1.${this.track.track_number} 0 1 ${this.track.track_number}`); //${this.track.sample.cs_function}
       this.play_button.attribute('src', 'play.png');
       this.track.effectsPanel.reset_count = 0;
       this.track.effectsPanel.reset_phase_status = 0;
@@ -206,6 +215,8 @@ function ControlPanel(track) {
     // });
 
     // if (csound) {
+      csound.setControlChannel("cs_function", this.track.sample.cs_function);
+
       csound.setControlChannel("volume", this.volume_slider.value());
       if (this.track.effectsPanel.time_lock_status) {
         // this.time_lock_speed = (this.track.wavePanel.loop_end - this.track.wavePanel.loop_start) / (this.time_lock_duration.value()) * 44100)

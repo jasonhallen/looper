@@ -1,12 +1,12 @@
 var csoundLoaded = false;
 let csound;
-const samples_list = ["bohannon.wav"];
+const samples_list = [{file_name: "bohannon.wav", cs_function: 1}, {file_name: "my_girl_2.wav", cs_function: 2}];
 let sample_list = [];
 
 async function loadResources(csound, filesArray) {
   for (let i = 0; i < filesArray.length; i++) {
-    const fileUrl = filesArray[i]; //"myFile.WAV"
-    const serverUrl = filesArray[i]; //`${process.env.PUBLIC_URL}/${fileUrl}`;
+    const fileUrl = filesArray[i].file_name; //"myFile.WAV"
+    const serverUrl = filesArray[i].file_name; //`${process.env.PUBLIC_URL}/${fileUrl}`;
     //   console.log(serverUrl);
     const f = await fetch(serverUrl);
     const fName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
@@ -15,7 +15,7 @@ async function loadResources(csound, filesArray) {
     const buffer = await f.arrayBuffer();
     // console.log(path, buffer);
     await csound.writeToFS(path, buffer);
-    await generate_peaks2(path,buffer);
+    await generate_peaks2(filesArray[i], buffer);
   }
   return true;
 }
@@ -50,16 +50,13 @@ function generate_peaks(path, buffer) {
         }
       }
     }
-    sample_list.push(new Sample(path,peak_array,buf.length));
+    sample_list.push(new Sample(path.file_name,path.cs_function,peak_array,buf.length));
   })
 }
 
 function generate_peaks2(path, buffer) {
-  console.log(buffer.byteLength);
-  console.log("TEST");
   csound.audioContext.decodeAudioData(buffer, function (buf) {
     // calculate peaks in buffer, save peak arrays
-    console.log(buf.length);
     var peak_array = new Float32Array(1000);
     var peaks = 500;
     var sampleSize = buf.length / peaks;
@@ -87,8 +84,12 @@ function generate_peaks2(path, buffer) {
         }
       }
     }
-    sample_list.push(new Sample(path,peak_array,buf.length));
+    sample_list.push(new Sample(path.file_name, path.cs_function , peak_array, buf.length));
   })
+}
+
+function generateInstrument() {
+
 }
 
 async function startCsound() {
@@ -107,8 +108,9 @@ async function startCsound() {
   })
 }
 
-function Sample(file_name, peaks, length) {
+function Sample(file_name, cs_function, peaks, length) {
   this.name = file_name;
+  this.cs_function = cs_function;
   this.length = length;
   this.peaks = peaks;
 }
