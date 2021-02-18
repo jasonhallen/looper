@@ -1,6 +1,6 @@
 var csoundLoaded = false;
 let csound;
-const samples_list = [{file_name: "bohannon.wav", cs_function: 1}, {file_name: "my_girl_2.wav", cs_function: 2}];
+const samples_list = [{ file_name: "bohannon.wav", cs_function: 1 }, { file_name: "my_girl_2.wav", cs_function: 2 }, { file_name: "akiko1.wav", cs_function: 3}];
 let sample_list = [];
 
 async function loadResources(csound, filesArray) {
