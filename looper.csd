@@ -212,11 +212,18 @@ instr 2 ; Crossfade Player
 
 	aphs phasor (sr*ktimescale)/(kcrossfade_duration)
 	aphs = aphs * kcrossfade_duration/sr + kphs/sr
+	aphs_amp init 0
 	; kamp_env poscil3 1, 1/p3, 101
 	kamp_phs phasor 1/p3
+	; kndx = 0
+	; while (kndx < ksmps) do
+	; 	aphs_amp[kndx] = kphs_amp/sr
+	; 	kphs_amp = kphs_amp + ktimescale 
+	; 	kndx += 1 
+	; od 
 	kamp_env = a((tablei:k((kamp_phs/2), 103, 1) + 1)/2)
 	asigl mincer aphs, kamp*kamp_env, kpitch, kfunction, ilock, 2048, 10
-	chnset kamp_env, "crossfade_out"
+	chnset kamp_phs, "crossfade_out"
 	; chnset k(aphs)*sr, SPlayheadChannel
 
 	; if kcrossfade == 1 then
