@@ -1,12 +1,54 @@
 var csoundLoaded = false;
 let csound;
-const samples_list = [{ file_name: "bohannon.wav", cs_function: 1 }, { file_name: "my_girl_2.wav", cs_function: 2 }, { file_name: "akiko1.wav", cs_function: 3}];
+const samples_list = [{ file_name: "bohannon.wav", cs_function: 1 },
+{ file_name: "my1.wav", cs_function: 2 },
+{ file_name: "akiko1.wav", cs_function: 3 },
+{ file_name: "z_chamberlin2.wav", cs_function: 4 },
+{ file_name: "z_chamberlin6.wav", cs_function: 5 },
+{ file_name: "z_chamberlin7.wav", cs_function: 6 },
+{ file_name: "z_chamberlin11.wav", cs_function: 7 },
+{ file_name: "z_chamberlin17.wav", cs_function: 8 },
+{ file_name: "z_chamberlin20.wav", cs_function: 9 },
+{ file_name: "z_chamberlin21.wav", cs_function: 10 },
+{ file_name: "z_chamberlin22.wav", cs_function: 11 },
+{ file_name: "z_chamberlin24.wav", cs_function: 12 },
+{ file_name: "z_maestro5.wav", cs_function: 13 },
+{ file_name: "z_mridanga2.wav", cs_function: 14 },
+{ file_name: "z_multivox16.wav", cs_function: 15 },
+{ file_name: "z_nomad5.wav", cs_function: 16 },
+{ file_name: "z_univox1.wav", cs_function: 17 },
+{ file_name: "z_univox2.wav", cs_function: 18 },
+{ file_name: "z_univox6.wav", cs_function: 19 },
+{ file_name: "z_univox16.wav", cs_function: 20 },
+{ file_name: "z_wurlitzer6.wav", cs_function: 21 },
+{ file_name: "z_wurlitzer7.wav", cs_function: 22 },
+{ file_name: "akiko2.wav", cs_function: 23 },
+{ file_name: "akiko3.wav", cs_function: 24 },
+{ file_name: "pv_kyrie.wav", cs_function: 25 },
+{ file_name: "pv_hosianna1.wav", cs_function: 26 },
+{ file_name: "pv_hosianna2.wav", cs_function: 27 },
+{ file_name: "pv_maria.wav", cs_function: 28 },
+{ file_name: "pv_es.wav", cs_function: 29 },
+{ file_name: "toto.wav", cs_function: 30 },
+{ file_name: "c_hallel.wav", cs_function: 31 },
+{ file_name: "c_luna.wav", cs_function: 32 },
+{ file_name: "pv_cobra.wav", cs_function: 33 },
+{ file_name: "baby.wav", cs_function: 34 },
+{ file_name: "my2.wav", cs_function: 35 },
+{ file_name: "my3.wav", cs_function: 36 },
+{ file_name: "bsoidia1.wav", cs_function: 37 },
+{ file_name: "bsoidia2.wav", cs_function: 38 },
+{ file_name: "dciw1.wav", cs_function: 39 },
+{ file_name: "dciw2.wav", cs_function: 40 },
+{ file_name: "dciw3.wav", cs_function: 41 },
+{ file_name: "dciw4.wav", cs_function: 42 },
+{ file_name: "dciw5.wav", cs_function: 43 }];
 let sample_list = [];
 
 async function loadResources(csound, filesArray) {
   for (let i = 0; i < filesArray.length; i++) {
-    const fileUrl = filesArray[i].file_name; //"myFile.WAV"
-    const serverUrl = filesArray[i].file_name; //`${process.env.PUBLIC_URL}/${fileUrl}`;
+    const fileUrl = "samples/" + filesArray[i].file_name; //"myFile.WAV"
+    const serverUrl = "samples/" + filesArray[i].file_name; //`${process.env.PUBLIC_URL}/${fileUrl}`;
     //   console.log(serverUrl);
     const f = await fetch(serverUrl);
     const fName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
