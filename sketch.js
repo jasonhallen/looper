@@ -791,7 +791,7 @@ function Mixer() {
   this.height = 3000;
   this.x_position = 1100;
   this.y_position = 30;
-  this.main_volume_slider = createSlider(0, 1.5, 1, 0.01);
+  this.main_volume_slider = createSlider(0, 1.5, 1, 0.001);
   this.main_volume_slider.size(200, 18);
   this.main_volume_slider.position(this.x_position + 50, this.y_position + 140);
   this.main_volume_slider.style('transform: rotate(270deg);');
