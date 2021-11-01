@@ -1,4 +1,7 @@
 # Looper
+
+<p align="center"><img src="https://jasonhallen.com/images/images/looper.png" title="Looper" alt="Looper" height="200">
+
 Inspired by the early work of Carl Stone, the Looper edits, pitch shifts, time stretches, and adds effects to WAV samples.  The interface is built with [p5.js](https://p5js.org/), HTML, and CSS, and the audio is generated with [Web Csound](https://csound.com/docs/web/). You can play a live version of this program at https://jasonhallen.com/web/looper/. The Looper isn't optimized for mobile so is best experienced on a computer.
 
 ## Core Components
@@ -9,7 +12,7 @@ Inspired by the early work of Carl Stone, the Looper edits, pitch shifts, time s
 * **index.html** - Dummy HTML file that only exists to load the core JavaScript files.
 
 ## Dependencies
-This program relies on p5.js for generating the graphical interface and managing all user interaction and on Web Csound for rendering all audio. You can either host the p5.js and Web Csound code in your server alongside the program code, or you can have the user's browser pull down and load the code from the p5.js and Web Csound servers when it loads the program.
+This program relies on 1) **p5.js** for generating the graphical interface and managing all user interaction and on 2) **Web Csound** for rendering all audio. You can either host the p5.js and Web Csound code in your server alongside the program code, or you can have the user's browser pull down and load the code from the p5.js and Web Csound servers when it loads the program.
 
 ## Tasks
 * Easy
