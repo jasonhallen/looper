@@ -25,3 +25,8 @@ Inspired by the early work of Carl Stone, the Looper edits, pitch shifts, time s
     * Presets
 
 ## Components
+* **setupCsound.js** - 
+* **sketch.js** - 
+* **styles.css** - 
+* **index.html** - 
+* **looper.csd** - 
