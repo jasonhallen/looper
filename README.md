@@ -1,9 +1,9 @@
 # Looper
-Inspired by the early work of Carl Stone, the Looper edits, pitch shifts, time stretches, and adds effects to WAV samples.  The interface is built with p5.js, HTML, and CSS, and the audio is generated with Web Csound.
+Inspired by the early work of Carl Stone, the Looper edits, pitch shifts, time stretches, and adds effects to WAV samples.  The interface is built with p5.js, HTML, and CSS, and the audio is generated with Web Csound. You can play a live version of this program at https://jasonhallen.com/web/looper/.
 
 ## Components
-* **setupCsound.js** - 
-* **sketch.js** - 
+* **setupCsound.js** - Initializes Web Csound object, loads WAV files into WebAssembly file system, and calculates peaks of WAV files for visualizing waveforms.
+* **sketch.js** - Contains the core elements of the graphical interface.
 * **styles.css** - 
 * **index.html** - 
 * **looper.csd** - 
